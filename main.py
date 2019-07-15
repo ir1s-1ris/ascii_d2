@@ -16,3 +16,6 @@ listMatches = vhs['matches'][0]
 
 print(type(listMatches))
 print(listMatches['match_id'])
+lastMatchId = listMatches['match_id']
+
+print(api.get_match_details(lastMatchId)['winner'])
