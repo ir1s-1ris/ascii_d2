@@ -1,8 +1,13 @@
 # Fetch last 100 very high skill games and filter out games that have leavers
 import d2api
+from myData import SteamApi
 
-api = d2api.APIWrapper('2BF19D0B6FA5E22C8364B7237B313F1B')
-vhs = api.get_match_history(account_id = 78312288)
+#print('Write steam_id: ')
+#playerId = int(input()) can write
+playerId = 78312288
+
+api = d2api.APIWrapper(SteamApi)
+vhs = api.get_match_history(account_id = playerId)
 
 #matches = [api.get_match_details(m['match_id']) for m in vhs['matches']]
 print(type(vhs))
