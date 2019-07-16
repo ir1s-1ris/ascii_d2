@@ -11,6 +11,13 @@ playerId = 78312288
 api = d2api.APIWrapper(SteamApi)
 playerHistory = api.get_match_history(account_id = playerId)
 
+#check player_info
+playerIds = []
+playerIds.append(playerId)
+playersInfo = api.get_player_summaries(account_ids = playerIds)
+print(playersInfo['players'][0])
+print(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime(playersInfo['players'][0]['timecreated'])))
+#print(playersInfo['players'][0]['timecreated'])
 #checkweek and time
 print(time.strftime("%U", time.localtime(time.time())))
 weekNow = time.strftime("%U", time.localtime(time.time()))
@@ -63,6 +70,8 @@ print(api.get_match_details(lastMatchId)['winner'])
 
 duration = api.get_match_details(lastMatchId)['duration']
 #print(time.strftime("%d %H:%M:%S ", time.localtime(startMatchTime)))
+
+
 
 
 print(duration ," sec or ", duration//60 ,"min")
