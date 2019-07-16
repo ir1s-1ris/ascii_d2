@@ -14,17 +14,36 @@ playerHistory = api.get_match_history(account_id = playerId)
 #checkweek and time
 print(time.strftime("%U", time.localtime(time.time())))
 weekNow = time.strftime("%U", time.localtime(time.time()))
+print(type(weekNow))
+
+# get frequency of heroes played in the latest 100 games
+playerItems= {}
 
 #init matches
-matches = [api.get_match_details(m['match_id']) for m in playerHistory['matches']]
+#istMatches = [api.get_match_details(m['match_id']) for m in playerHistory['matches']]
+
+#print(type(listMatches))
+
+count = 0
 
 #loop init
-for m in playerHistory['matches']:
-	match = playerHistory['matches'][m]
-	matchId= match['match_id']
-	weekGame = time.strftime("%U", time.localtime(api.get_match_details(lastMatchId)['start_time']))
+#for match in playerHistory['matches']:
+for match in playerHistory['matches']:
+	
+	#print(type(match))
+	weekGame = time.strftime("%U", time.localtime(api.get_match_details(match['match_id'])['start_time']))
+	#print(type(weekGame))
+	if int(weekGame) >= int(weekNow)-1:
+		if int(weekGame) == int(weekNow)-1:
+			count += 1
+			print('Game on last week: ', count)
+	else:
+		break
+	#match = playerHistory['matches'][m]
+	#matchId= match['match_id']
+	#weekGame = time.strftime("%U", time.localtime(api.get_match_details(lastMatchId)['start_time']))
 	#api.get_match_details(lastMatchId)['start_time']
-	if weekGame == weekNow-1:
+	#if weekGame == weekNow-1S
 		
 
 
