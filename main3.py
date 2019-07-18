@@ -73,8 +73,30 @@ def addPlayer():
 	cursor.close()
 
 
-addPlayer()
+def checkDbPlayer(steamId):
+	try:
+		conn = psycopg2.connect(dbname='sammy1', password='admin', user='postgres', host='localhost')
+	except:
+		print("i am unable to connect to the database")
 
+	cursor = conn.cursor()
+	cursor.execute("SELECT personaname FROM test2 WHERE steamaccount32 = %s;", (steamId,))
+	print(type(cursor.fetchall()))
+
+
+checkDbPlayer(playerId)
+
+'''
+	try:
+		cursor.execute("SELECT personaname FROM test2 WHERE profileurl = %s;", steamId)
+		print(cursor.fetchall())
+		return true
+	except:
+		print(cursor.fetchall())
+		print("checkDbPlayer - error")
+		return false
+
+'''
 '''
 
 def dbconn():
