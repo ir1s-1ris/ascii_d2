@@ -80,11 +80,31 @@ def checkDbPlayer(steamId):
 		print("i am unable to connect to the database")
 
 	cursor = conn.cursor()
+	
 	cursor.execute("SELECT personaname FROM test2 WHERE steamaccount32 = %s;", (steamId,))
-	print(type(cursor.fetchall()))
+	
+	try:
+		dbbuff = cursor.fetchall()
+		print(dbbuff)
+	except:
+		print('error fetchall()')
+	
+	conn.commit()
+	conn.close()
+	cursor.close()
+
+	if dbbuff[0] != None:
+		return dbbuff[0]
+	else:
+		return false
 
 
-checkDbPlayer(playerId)
+
+
+test = checkDbPlayer(playerId)
+test1 = test[0]
+print(type(test1))
+print(test1)
 
 '''
 	try:
@@ -95,7 +115,9 @@ checkDbPlayer(playerId)
 		print(cursor.fetchall())
 		print("checkDbPlayer - error")
 		return false
-
+#cursor.execute("UPDATE test2 set id = '2' WHERE id = '3';")
+#print(type(dbbuff))
+	#print(dbbuff)
 '''
 '''
 

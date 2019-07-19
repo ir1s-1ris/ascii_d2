@@ -17,7 +17,11 @@ def userMenu():
 	if choice == '2':
 		print('---Добавление к отслеживаемому. --- \nВведите steamId:')
 		steamId = input()
-		addPlayer(steamId)
+		baseCheck = checkDbPlayer()
+		if baseCheck == true: 
+			addPlayer(steamId)
+		else
+			print('Данный персонаж уже есть в базе. Вы хотите его отслеживать? (y/n)')
 
 
 def apiInit():
@@ -32,7 +36,9 @@ def addPlayer(steamId):
 
 	cursor = conn.cursor()
 
-	
+	try:
+		cursor.execute("")
+
 	#create list var for parse playerId
 	api = d2api.APIWrapper(SteamApi)
 
