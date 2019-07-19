@@ -10,4 +10,6 @@ def send_welcome(message):
 def echo_all(message):
 	bot.reply_to(message, message.text)
 
+user = tb.get_me()
+
 bot.polling()
