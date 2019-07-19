@@ -86,6 +86,7 @@ def checkDbPlayer(steamId):
 	try:
 		dbbuff = cursor.fetchall()
 		print(dbbuff)
+		print(type(dbbuff))
 	except:
 		print('error fetchall()')
 	
@@ -93,18 +94,16 @@ def checkDbPlayer(steamId):
 	conn.close()
 	cursor.close()
 
-	if dbbuff[0] != None:
-		return dbbuff[0]
+	if isinstance(dbbuff, list):
+		dbbuff = dbbuff[0]
+		dbbuff = dbbuff[0]
+		return dbbuff
 	else:
-		return false
+		return None
 
 
 
-
-test = checkDbPlayer(playerId)
-test1 = test[0]
-print(type(test1))
-print(test1)
+print(checkDbPlayer(playerId))
 
 '''
 	try:
