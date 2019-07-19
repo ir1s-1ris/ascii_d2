@@ -1,12 +1,38 @@
 import d2api
 import psycopg2
-from myData import SteamApi
+from myData import steamApi, defaultPlayerId
 
 def greetings():
 	print('D2Tracker bot к вашим услугам. Здравствуйте.')
 	###Тут должна быть проверка авторизация. Пока нету
 	print('Вы авторизованы как Admin:Admin')
 #Основная функция где мы работаем и вызывваем новые функции.
+
+def checkDbPlayer(steamId):
+	try:
+		conn = psycopg2.connect(dbname='sammy1', password='admin', user='postgres', host='localhost')
+	except:
+		print("i am unable to connect to the database")
+
+	cursor = conn.cursor()
+	
+	cursor.execute("SELECT personaname FROM test2 WHERE steamaccount32 = %s;", (steamId,))
+	
+	try:
+		dbbuff = cursor.fetchall()
+	except:
+		print('error fetchall()')
+	
+	conn.commit()
+	conn.close()
+	cursor.close()
+
+	if isinstance(dbbuff, list):
+		dbbuff = dbbuff[0]
+		dbbuff = dbbuff[0]
+		return dbbuff
+	else:
+		return None
 
 def userMenu():
 	print('Главное меню:')
@@ -17,15 +43,16 @@ def userMenu():
 	if choice == '2':
 		print('---Добавление к отслеживаемому. --- \nВведите steamId:')
 		steamId = input()
-		baseCheck = checkDbPlayer()
-		if baseCheck == true: 
+		baseCheck = checkDbPlayer(steamId)
+		if baseCheck == None: 
 			addPlayer(steamId)
-		else
+		else:
+			print("Есть совпадение:", baseCheck)
 			print('Данный персонаж уже есть в базе. Вы хотите его отслеживать? (y/n)')
 
 
 def apiInit():
-	api = d2api.APIWrapper(SteamApi)
+	api = d2api.APIWrapper(steamApi)
 
 
 def addPlayer(steamId):
@@ -35,12 +62,9 @@ def addPlayer(steamId):
 		print("i am unable to connect to the database")
 
 	cursor = conn.cursor()
-
-	try:
-		cursor.execute("")
-
+	apiInit()
 	#create list var for parse playerId
-	api = d2api.APIWrapper(SteamApi)
+	#api = d2api.APIWrapper(steamApi)
 
 	#variables
 	playerId = steamId
