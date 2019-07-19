@@ -34,7 +34,7 @@
 
 import telebot
 
-bot = telebot.TeleBot('TOKEN')
+bot = telebot.TeleBot('894268478:AAEkmO_QCIvNgmUGn-aReWFLSCxdyK-uvbI')
 
 
 def extract_unique_code(text):
