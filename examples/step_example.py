@@ -19,6 +19,14 @@ class User:
         self.age = None
         self.sex = None
 
+location_keyboard = telegram.KeyboardButton(text="send_location", request_location=True)
+contact_keyboard = telegram.KeyboardButton(text="send_contact", request_contact=True)
+custom_keyboard = [[ location_keyboard, contact_keyboard ]]
+reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
+bot.send_message(chat_id=chat_id, 
+...                  text="Would you mind sharing your location and contact with me?", 
+...                  reply_markup=reply_markup)
+
 
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['help', 'start'])
@@ -28,6 +36,14 @@ Hi there, I am Example bot.
 What's your name?
 """)
     bot.register_next_step_handler(msg, process_name_step)
+
+location_keyboard = telegram.KeyboardButton(text="send_location", request_location=True)
+contact_keyboard = telegram.KeyboardButton(text="send_contact", request_contact=True)
+custom_keyboard = [[ location_keyboard, contact_keyboard ]]
+reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
+bot.send_message(chat_id=chat_id, 
+...                  text="Would you mind sharing your location and contact with me?", 
+...                  reply_markup=reply_markup)
 
 
 def process_name_step(message):
