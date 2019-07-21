@@ -1,1 +1,6 @@
-notes
+pip install --upgrade pip
+pip install python-telegram-bot==12.0.0b1 --upgrade
+
+pip install --upgrade pip;pip install python-telegram-bot==12.0.0b1 --upgrade;
+
+git add . || git commit -m 'bot example' &&  git push origin && git push git@heroku.com:d2tracker.git && heroku run bash --app d2tracker
