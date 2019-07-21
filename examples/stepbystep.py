@@ -20,6 +20,6 @@ def echo(update, context):
 	context.bot.send_message(chat_id=update.message.chat_id, text=update.message.text)
 
 echo_handler = MessageHandler(Filters.text, echo)
-dispatchar.add_handler(echo_handler)
+dispatcher.add_handler(echo_handler)
 
 updater.start_polling()
