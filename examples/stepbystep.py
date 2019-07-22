@@ -58,6 +58,8 @@ def inline_caps(update, context):
 inline_caps_handler = InlineQueryHandler(inline_caps)
 dispatcher.add_handler(inline_caps_handler)
 
+
+#Obrabotka neponyatnih komand /*komand*
 def unknown(update, context):
 	context.bot.send_message(chat_id=update.message.chat_id, text="sorry, i didn't understand that command")
 	

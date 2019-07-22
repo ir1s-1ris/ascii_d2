@@ -4,6 +4,30 @@ import d2api
 import psycopg2
 from myData import SteamApi
 
+#connect to api, and player
+api = d2api.APIWrapper(SteamApi)
+
+#variables
+playerId = 78312288
+playerInfo = []	
+playerIds = []
+playerIds.append(playerId)
+playersInfo = api.get_player_summaries(account_ids = playerIds)
+
+def checkPlayerInDb(SteamId):
+	#проверить есть ли этот персонаж уже  вбазе 1, если нету то создать ему новую базу для матчей
+	#проверить дату последней игры в бд и спарсить последнюю игру(проверка актуальности базы) -> если она оказывается не последней то добавлять игры до момента пока первоначально *последняя* айди матча не совпадёт
+
+def playerGamesInfo1(SteamId):
+	#алгоритм который выводит информацию из бд, по всем матчам которые были сыграны на данной неделе. вывод информации в виде вывода табличных данных. пока что.
+
+def playerGamesInfo2(SteamId):
+	#алгоритм который выводит информацию из бд, по всем матчам которые были сыграны на данной неделе. вывод информации в виде вывода табличных данных. пока что.
+
+
+
+
+'''
 def createTest2():
 	try:
 		conn = psycopg2.connect(dbname='sammy1', password='admin', user='postgres', host='localhost')
@@ -20,25 +44,6 @@ def createTest2():
 	conn.commit()
 	conn.close()
 	cursor.close()
-
-
-
-#print(cursor.fetchall())
-
-
-
-
-#connect to api, and player
-api = d2api.APIWrapper(SteamApi)
-
-#variables
-playerId = 78312288
-playerInfo = []	
-playerIds = []
-playerIds.append(playerId)
-playersInfo = api.get_player_summaries(account_ids = playerIds)
-
-
 
 def addPlayer():
 	try:
@@ -72,7 +77,6 @@ def addPlayer():
 	conn.close()
 	cursor.close()
 
-
 def checkDbPlayer(steamId):
 	try:
 		conn = psycopg2.connect(dbname='sammy1', password='admin', user='postgres', host='localhost')
@@ -104,6 +108,8 @@ def checkDbPlayer(steamId):
 
 
 print(checkDbPlayer(playerId))
+
+'''
 
 '''
 	try:
