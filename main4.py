@@ -3,53 +3,10 @@
 import getpass
 import sqlite3
 import sys
+import datetime
 import time
 import d2api
 from myData import SteamApi
-
-# try:
-#     cursor.execute("""Create table albums
-#                 (title text, artist text, release_date text, publisher text, media_type text)
-#                 """)
-#     print('БД создалась')
-# except: 
-#     print('БД не создалась')
-
-# cursor.execute("""INSERT INTO albums
-#                 VALUES ('GLOW', 'Andy Hunter', '7/24/2012',
-#                 'Xplore Records', 'MP3')"""
-#                 )
-
-# conn.commit()
-
-# albums = [('Exodus', 'Andy Hunter', '7/9/2002', 'Sparrow Records', 'CD'),
-#           ('Until We Have Faces', 'Red', '2/1/2011', 'Essential Records', 'CD'),
-#           ('The End is Where We Begin', 'Thousand Foot Krutch', '4/17/2012', 'TFKmusic', 'CD'),
-#           ('The Good Life', 'Trip Lee', '4/10/2012', 'Reach Records', 'CD')]
-
-# cursor.executemany("INSERT INTO albums VALUES (?,?,?,?,?)", albums)
-
-# conn.commit() 
-
-# sql = """
-# SELECT * FROM albums WHERE artist = ?
-# """
-
-# print("Here's a listing of all the records in the table:")
-# for row in cursor.execute("SELECT rowid, * FROM albums ORDER BY artist"):
-#     print(row)
-
-# print("Results from a like query:")
-# sql = "SELECT * FROM albums WHERE title like 'The%'"
-# cursor.execute(sql)
-
-# print(cursor.fetchall())
-
-
-# cursor.execute(sql, [("Red")])
-# print(cursor.fetchall())
-# conn.commit()
-
 
 def dbConnect():
     try:
@@ -83,7 +40,6 @@ def registration(user, cursor, conn):
     sql = "SELECT * FROM users WHERE user =?"
     cursor.execute(sql, [(user)])
     temp = cursor.fetchall()
-    print(temp)
     if (temp == []):
         sql = """
         INSERT INTO users (user, regDate)
@@ -97,68 +53,49 @@ def registration(user, cursor, conn):
     else:
         print('Здраствуйте ', user,'.')
 
-# def proverkaBazi(cursor, conn):
-#     sql = """
-#     INSERT INTO users
-#     VALUES (NULL, 'hhash', 12345);
-#     """
-#     cursor.execute(sql)
-#     conn.commit()
-
-def userMenu(user, cursor, conn):
-    # sql = """
-    # SELECT count(*) FROM sqlite_master WHERE type='table' AND name =?;
-    # """
-    # cursor.execute(sql,[(user)])
-    # temp = cursor.fetchall()[0][0]
-    # # temp = temp[0][0]
-    # print(type(temp))
-    # print(temp)
-    # print('')
-    # if(temp == 0):
-    #     sql="""
-    #     CREATE TABLE if not exists ? (
-    #     id INTEGER PRIMARY KEY NOT NULL,
-    #     user TEXT NOT NULL,
-    #     regDate INTEGER
-    #     );
-    #     """
+def weekReport(cursor, conn):
+    today = datetime.datetime.today()
+    monday = today - datetime.timedelta(datetime.datetime.weekday(today))
+    sunday = today + datetime.timedelta(6 - datetime.datetime.weekday(today))
+    print('Неделя ' + str(datetime.date.today().isocalendar()[1]) +'. ' + str(monday.day) + ' ' + str(monday.strftime("%B")) + ' - ' + str(sunday.day) + ' ' + str(sunday.strftime("%B")) + '.')
 
     sql = """
     SELECT steamId FROM users WHERE user = ?
     """
-    cursor.execute(sql,[(user)])
+
+    cursor.execute(sql,[(getpass.getuser())])
     temp = cursor.fetchall()[0][0]
+    print(temp)
     print(type(temp))
     print(temp)
-    
 
-    if(temp == None):
-        temp1 = input('Введите пожалуйста ваш steamId.')
-        sql = """
-        UPDATE users SET steamId = ? WHERE user = ?;
-        """
-        cursor.execute(sql, [(temp1),(user)])
-        print(cursor.fetchall())
+    sql = """
+    SELECT * FROM match"""+str(temp)+""" ORDER BY start_time DESC
+    """
 
-    api = d2api.APIWrapper(SteamApi)
-    playerHistory = api.get_match_history(account_id = temp)
-    print(type(playerHistory))
-    # print(playerHistory)
-    print(playerHistory['matches'][0]['dire_team_id'])
-
-
+    cursor.execute(sql)
+    time1 = cursor.fetchall()[0][7]
     print(temp)
+    print(type(monday))
+    print(time.mktime(monday.timetuple()))
+    time2 = time.mktime(monday.timetuple())
+    if(time1 < time2):
+        print('на данной неделе вы не играли никаких игр.')
+
+    sql = """
+    SELECT players FROM users WHERE user = ?
+    """
+    cursor.execute(sql,[(getpass.getuser())])
+    temp = cursor.fetchall()[0][0]
+    print(temp)
+
     tempStr = '{}{}'.format('match', temp)
-    print(tempStr)
-    
-    
     sql="""
     CREATE TABLE if not exists """ + tempStr + """ (
         id INTEGER PRIMARY KEY NOT NULL,
         dire_team_id INTEGER,
         lobby_type INTEGER,
-        match_id INTEGER,
+        match_id INTEGER UNIQUE,
         match_seq_num INTEGER,
         players TEXT,
         radiant_team_id INTEGER,
@@ -167,45 +104,118 @@ def userMenu(user, cursor, conn):
     """
     cursor.execute(sql)
 
-    print(type(playerHistory['matches'][0]['players']))
-    # print(playerHistory['matches'][0]['players'])
-    print(playerHistory['matches'][0]['players'][0]['hero'])
-    print(type(playerHistory['matches'][0]['players'][0]['side']))
-    hero = playerHistory['matches'][0]['players'][0]['hero']
-    print(str(playerHistory['matches'][0]['players'][0]['side']))
+    api = d2api.APIWrapper(SteamApi)
+    playerHistory = api.get_match_history(account_id = temp)
 
-    print(type(str(hero)))
-    
-    tempStr2 = ''
-    
-    print(playerHistory['num_results'])
+    for number1 in range(playerHistory['num_results']):
+        tempStr2 = ""
+        for number2 in range(10):
+            tempStr2 += "(" + str(playerHistory['matches'][number1]['players'][number2]['hero']) + ", " + str(playerHistory['matches'][number1]['players'][number2]['side']) + ", " + str(playerHistory['matches'][number1]['players'][number2]['steam_account']) + ");\n "
 
-    for number in range(10):
-        print(number)
-        tempStr2 += "(" + str(playerHistory['matches'][0]['players'][number]['hero']) + ", " + str(playerHistory['matches'][0]['players'][number]['side']) + ", " + str(playerHistory['matches'][0]['players'][number]['steam_account']) + ");\n "
-    print(tempStr2)
-    tempStr3 = 'kaka'
-    for number in range(playerHistory['num_results']):
         sql="""
-        INSERT INTO """ + tempStr + """ (dire_team_id, lobby_type, match_id, match_seq_num, players, radiant_team_id, start_time)
-        VALUES (""" + str(playerHistory['matches'][number]['dire_team_id']) +""",""" + str(playerHistory['matches'][number]['lobby_type']) +""",""" + str(playerHistory['matches'][number]['match_id']) +""",""" +  str(playerHistory['matches'][number]['match_seq_num']) +""", '""" + tempStr2 +"""',""" + str(playerHistory['matches'][number]['radiant_team_id']) +""",""" + str(playerHistory['matches'][number]['start_time']) + """);"""
+        INSERT OR IGNORE INTO """ + tempStr + """ (dire_team_id, lobby_type, match_id, match_seq_num, players, radiant_team_id, start_time)
+        VALUES (""" + str(playerHistory['matches'][number1]['dire_team_id']) +""",""" + str(playerHistory['matches'][number1]['lobby_type']) +""",""" + str(playerHistory['matches'][number1]['match_id']) +""",""" +  str(playerHistory['matches'][number1]['match_seq_num']) +""", '""" + tempStr2 +"""',""" + str(playerHistory['matches'][number1]['radiant_team_id']) +""",""" + str(playerHistory['matches'][number1]['start_time']) + """);"""
+
+        cursor.execute(sql)    
+    
+
+    sql = """
+    SELECT * FROM match"""+str(temp)+""" ORDER BY start_time DESC
+    """
+    cursor.execute(sql)
+    fetch = cursor.fetchall()
+    for number in range(playerHistory['num_results'] - 1):
+        print(fetch[number][7])
+
+    
+  
+    conn.commit()
+
+
+    
+
+
+def userMenu(user, cursor, conn):
+
+    sql = """
+    SELECT steamId FROM users WHERE user = ?
+    """
+    cursor.execute(sql,[(user)])
+    temp = cursor.fetchall()[0][0]
+
+    if(temp == None):
+        temp1 = input('Введите пожалуйста ваш steamId.')
+        sql = """
+        UPDATE users SET steamId = ? WHERE user = ?;
+        """
+        cursor.execute(sql, [(temp1),(user)])
+        print(cursor.fetchall())
+    api = d2api.APIWrapper(SteamApi)
+    playerHistory = api.get_match_history(account_id = temp)
+
+    tempStr = '{}{}'.format('match', temp)
+    sql="""
+    CREATE TABLE if not exists """ + tempStr + """ (
+        id INTEGER PRIMARY KEY NOT NULL,
+        dire_team_id INTEGER,
+        lobby_type INTEGER,
+        match_id INTEGER UNIQUE,
+        match_seq_num INTEGER,
+        players TEXT,
+        radiant_team_id INTEGER,
+        start_time INTEGER
+    );
+    """
+    cursor.execute(sql)
+    tempStr2 = ''
+
+    
+
+    for number1 in range(playerHistory['num_results']):
+        tempStr2 = ""
+        for number2 in range(10):
+            tempStr2 += "(" + str(playerHistory['matches'][number1]['players'][number2]['hero']) + ", " + str(playerHistory['matches'][number1]['players'][number2]['side']) + ", " + str(playerHistory['matches'][number1]['players'][number2]['steam_account']) + ");\n "
+
+        sql="""
+        INSERT OR IGNORE INTO """ + tempStr + """ (dire_team_id, lobby_type, match_id, match_seq_num, players, radiant_team_id, start_time)
+        VALUES (""" + str(playerHistory['matches'][number1]['dire_team_id']) +""",""" + str(playerHistory['matches'][number1]['lobby_type']) +""",""" + str(playerHistory['matches'][number1]['match_id']) +""",""" +  str(playerHistory['matches'][number1]['match_seq_num']) +""", '""" + tempStr2 +"""',""" + str(playerHistory['matches'][number1]['radiant_team_id']) +""",""" + str(playerHistory['matches'][number1]['start_time']) + """);"""
 
         cursor.execute(sql)
-
-
-
     
 
-        
+    sql = """
+    SELECT players FROM users WHERE user = """ + getpass.getuser() + """
+    """
+
+    sql =  """
+    SELECT players FROM users WHERE user = ?
+    """
+
+    print(sql)
+
+    cursor.execute(sql, [(getpass.getuser())])
+    temp = cursor.fetchall()
+    print(type(temp))
+    print(temp[0])
+    print(type(temp[0]))
+    print(temp[0][0])
+    if(temp[0][0] == None):
+        print('Ваш список Players пуст')
+        ans = input('Хотите добавить игрока?(Y/N)')
+        if(ans == 'y' or 'Y'):
+            temp = input('Введите SteamId игрока: ')
+            sql = """
+            UPDATE users SET players = ? WHERE user = ?;
+            """
+            cursor.execute(sql,[(temp),getpass.getuser()])
+            print(cursor.fetchall())
     
 
     conn.commit()
 
+    weekReport(cursor, conn)
 
 
-
-
-    
 
 def main():
     cursor, conn = dbConnect()
