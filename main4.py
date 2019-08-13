@@ -58,7 +58,9 @@ def weekReport(cursor, conn):
     monday = today - datetime.timedelta(datetime.datetime.weekday(today))
     sunday = today + datetime.timedelta(6 - datetime.datetime.weekday(today))
     print('Неделя ' + str(datetime.date.today().isocalendar()[1]) +'. ' + str(monday.day) + ' ' + str(monday.strftime("%B")) + ' - ' + str(sunday.day) + ' ' + str(sunday.strftime("%B")) + '.')
-
+    time2 = time.mktime(monday.timetuple())
+    time3 = time2 - 604800
+    api = d2api.APIWrapper(SteamApi)
     sql = """
     SELECT steamId FROM users WHERE user = ?
     """
@@ -74,13 +76,65 @@ def weekReport(cursor, conn):
     """
 
     cursor.execute(sql)
-    time1 = cursor.fetchall()[0][7]
-    print(temp)
-    print(type(monday))
-    print(time.mktime(monday.timetuple()))
-    time2 = time.mktime(monday.timetuple())
-    if(time1 < time2):
+    fetch = cursor.fetchall()
+    print(fetch)
+    time1 = fetch[0][7]
+    print(fetch)
+    print('TEST')
+    # print(fetch['num_results'])
+    tempMatches = []
+    for row in cursor.execute("""
+    SELECT rowid, * FROM match"""+str(temp)+""" ORDER BY start_time DESC
+    """):
+        if((row[8] < time2) & (row[8] > time3)):
+            tempMatches.append(row)
+    print(tempMatches)
+    
+    print(time3)
+    print('На прошлой неделе..:')
+    
+    print('Количество игр: ' + str(len(tempMatches)))
+    matchDetails = api.get_match_details(tempMatches[0][3])
+    print(matchDetails)
+    print(tempMatches[0])
+    print(tempMatches[1])
+    for match in tempMatches:
+        print(match[4])
+        matchDetails = api.get_match_details(match[4])
+        #ищем лучшее кда
+        topkda = []
+        topkda.insert(0, matchDetails['players'][0]['hero']['hero_name'])
+        topkda.insert(1, matchDetails['players'][0]['kills'])
+        topkda.insert(2, matchDetails['players'][0]['deaths'])
+        topkda.insert(3, matchDetails['players'][0]['assists'])
+        temp = (matchDetails['players'][0]['kills'] + matchDetails['players'][0]['assists']) / matchDetails['players'][0]['deaths']
+        topkda.insert
+        for num in matchDetails['players'][0]['inventory']:
+            print(num['item_name'])
+        print(matchDetails['players'][0]['inventory'][0]['item_name'])
+        print(type(matchDetails['players'][0]['inventory']))
+        # print(matchDetails)
+        print(type(matchDetails['players'][0]['hero']))
+        print(type(topkda))
+        
+        for player in range(10):
+            kda = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
+            # if (kda > topkda):
+                # topkda = 
+            print(kda)
+        print(type(matchDetails))
+
+    print('Количество побед')
+
+    
+
+    if(time1 > time2):
+        print('haha')
+        # for number1 in range(fetch['num_results']):
+        print('kek')
+    else:
         print('на данной неделе вы не играли никаких игр.')
+    
 
     sql = """
     SELECT players FROM users WHERE user = ?
@@ -104,8 +158,9 @@ def weekReport(cursor, conn):
     """
     cursor.execute(sql)
 
-    api = d2api.APIWrapper(SteamApi)
+
     playerHistory = api.get_match_history(account_id = temp)
+    # matchDetails = api.get_match_details()
 
     for number1 in range(playerHistory['num_results']):
         tempStr2 = ""
@@ -118,14 +173,26 @@ def weekReport(cursor, conn):
 
         cursor.execute(sql)    
     
+    
+    
 
     sql = """
     SELECT * FROM match"""+str(temp)+""" ORDER BY start_time DESC
     """
     cursor.execute(sql)
+
     fetch = cursor.fetchall()
-    for number in range(playerHistory['num_results'] - 1):
-        print(fetch[number][7])
+    playerIds = []
+    playerIds.append(temp)
+    playersInfo = api.get_player_summaries(account_ids = playerIds)
+    print(playersInfo['players'][0]['personaname'])
+
+
+    if(fetch[0][7]>time2):
+        print(fetch[0])
+        print('На этой неделе у игрока не было')
+    # for number in range(playerHistory['num_results'] - 1):
+    #     print(fetch[number][7])
 
     
   
