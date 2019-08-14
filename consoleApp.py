@@ -30,8 +30,7 @@ def dbConnect():
         """)
     except:
         print('Не получилось создать юзерс')
-        
-    
+
     return cursor, conn
     
 
@@ -61,7 +60,9 @@ def weekReport(cursor, conn):
     lastMonday = monday - datetime.timedelta(days=7)
     lastSunday = sunday - datetime.timedelta(days=7)
 
-    print('Неделя ' + str(datetime.date.today().isocalendar()[1]) +'. ' + str(monday.day) + ' ' + str(monday.strftime("%B")) + ' - ' + str(sunday.day) + ' ' + str(sunday.strftime("%B")) + '.')
+    print('')
+    print('*Отчётик!*')
+    
     time2 = time.mktime(monday.timetuple())
     time3 = time2 - 604800
     api = d2api.APIWrapper(SteamApi)
@@ -188,10 +189,9 @@ def weekReport(cursor, conn):
 
     print(topkda)
     print(mytopkda)
-    print('Количество побед')
 
-    
-
+    print('')
+    print('Данная неделя ' + str(datetime.date.today().isocalendar()[1]) +'. ' + str(monday.day) + ' ' + str(monday.strftime("%B")) + ' - ' + str(sunday.day) + ' ' + str(sunday.strftime("%B")) + '.')
     if(time1 > time2):
         print('На этой неделе были игры')
 
@@ -199,12 +199,12 @@ def weekReport(cursor, conn):
         print('на данной неделе вы не играли никаких игр.')
     
 
+    print('')
     sql = """
     SELECT players FROM users WHERE user = ?
     """
     cursor.execute(sql,[(getpass.getuser())])
     temp = cursor.fetchall()[0][0]
-    print(temp)
 
     tempStr = '{}{}'.format('match', temp)
     sql="""
