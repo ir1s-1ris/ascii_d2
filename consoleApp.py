@@ -6,6 +6,7 @@ import sys
 import datetime
 import time
 import d2api
+import re
 from myData import SteamApi
 
 def dbConnect():
@@ -95,7 +96,6 @@ def weekReport(cursor, conn):
     matchDetails = api.get_match_details(tempMatches[0][3])
     
     print('На прошлой неделе: ' + str(datetime.date.today().isocalendar()[1] - 1) + '. ' + str(lastMonday.day) + ' ' + str(lastMonday.strftime("%B")) + ' - ' + str(lastSunday.day) + ' ' + str(lastSunday.strftime("%B")) + '.')
-    # print('Неделя ' + str(datetime.date.today().isocalendar()[1]) +'. ' + str(monday.day) + ' ' + str(monday.strftime("%B")) + ' - ' + str(sunday.day) + ' ' + str(sunday.strftime("%B")) + '.')
     win = 0;
     for match in tempMatches:
         # print(match)
@@ -112,80 +112,139 @@ def weekReport(cursor, conn):
         temp = win/(len(tempMatches)/100)
     print('Количество игр: ' + str(len(tempMatches)) + '. ' + 'Win: ' + str(win) + '  Lose: ' + str(len(tempMatches) - win) + ' . WR: ' + str(temp))
     
+    tempList = []
+    tempList1 = []
     for match in tempMatches:
         matchDetails = api.get_match_details(match[4])
         #ищем лучшее кда
         topkda = []
-        topkda.insert(0, matchDetails['players'][0]['hero']['hero_name'])
+        temp = matchDetails['players'][player]['hero']['hero_name']
+        temp = re.sub(r"npc_dota_hero_", "", temp)
+        topkda.insert(0, temp)
         topkda.insert(1, matchDetails['players'][0]['kills'])
         topkda.insert(2, matchDetails['players'][0]['deaths'])
         topkda.insert(3, matchDetails['players'][0]['assists'])
         temp = (matchDetails['players'][0]['kills'] + matchDetails['players'][0]['assists']) / matchDetails['players'][0]['deaths']
         topkda.insert(4, temp)
-        temp = ''
+        temp1 = ''
         for num in matchDetails['players'][0]['inventory']:
-            # print(num['item_name'])
-            temp = temp + num['item_name'] + ';'
-        topkda.insert(5, temp)
+            if(num['item_name'] != 'unknown_item'):
+                temp = num['item_name']
+                temp = re.sub(r"item_", "", temp)
+                temp1 = temp1 + temp + '; '
+            if(num['item_id'] == 271):
+                temp1 = temp1 + 'aghanim_blessing;'
+        topkda.insert(5, temp1)
         topkda.insert(6, matchDetails['duration'])
         topkda.insert(7, matchDetails['start_time'])
         topkda.insert(8, matchDetails['match_id'])
-        topkda.insert(9, matchDetails['winner'])
+        topkda.insert(9, matchDetails['players'][player]['side'])
+        topkda.insert(10, matchDetails['winner'])
 
         mytopkda = []
 
         for player in range(10):
             kda = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
             if (matchDetails['players'][player]['steam_account']['id32'] == steamId32):
+                tempList.append(matchDetails['players'][player]['kills'])
+                temp = matchDetails['players'][player]['hero']['hero_name']
+                temp = re.sub(r"npc_dota_hero_", "", temp)
+                tempList.append(temp)
+                tempList.append(matchDetails['players'][player]['deaths'])
+                tempList.append(matchDetails['players'][player]['assists'])
+                temp = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
+                tempList.append(temp)
+                temp1 = ''
+                for num in matchDetails['players'][player]['inventory']:
+                        if(num['item_name'] != 'unknown_item'):
+                            temp = num['item_name']
+                            temp = re.sub(r"item_", "", temp)
+                            temp1 = temp1 + temp + '; '
+                        if(num['item_id'] == '271'):
+                            temp1 = temp1 + 'aghanim_blessing;'
+                tempList.append(temp1)
+                tempList.append(matchDetails['duration'])
+                tempList.append(matchDetails['start_time'])
+                tempList.append(matchDetails['match_id'])
+                tempList.append(matchDetails['players'][player]['side'])
+                tempList.append(matchDetails['winner'])
                 if (mytopkda == []):
                     mytopkda.insert(1, matchDetails['players'][player]['kills'])
-                    mytopkda.insert(0, matchDetails['players'][player]['hero']['hero_name'])
+                    temp = matchDetails['players'][player]['hero']['hero_name']
+                    temp = re.sub(r"npc_dota_hero_", "", temp)
+                    mytopkda.insert(0, temp)
                     mytopkda.insert(2, matchDetails['players'][player]['deaths'])
                     mytopkda.insert(3, matchDetails['players'][player]['assists'])
                     temp = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
                     mytopkda.insert(4, temp)
-                    temp = ''
+                    temp1 = ''
                     for num in matchDetails['players'][player]['inventory']:
-                        temp = temp + num['item_name'] + ';'
-                    mytopkda.insert(5, temp)
+                        if(num['item_name'] != 'unknown_item'):
+                            temp = num['item_name']
+                            temp = re.sub(r"item_", "", temp)
+                            temp1 = temp1 + temp + '; '
+                        if(num['item_id'] == '271'):
+                            temp1 = temp1 + 'aghanim_blessing;'
+                    mytopkda.insert(5, temp1)
                     mytopkda.insert(6, matchDetails['duration'])
                     mytopkda.insert(7, matchDetails['start_time'])
                     mytopkda.insert(8, matchDetails['match_id'])
-                    mytopkda.insert(9, matchDetails['winner'])
+                    mytopkda.insert(9, matchDetails['players'][player]['side'])
+                    mytopkda.insert(10, matchDetails['winner'])
                 elif(kda > mytopkda[5]):
                     mytopkda.clear()
+                    temp = matchDetails['players'][player]['hero']['hero_name']
+                    temp = re.sub(r"npc_dota_hero_", "", temp)
+                    mytopkda.insert(0, temp)
                     mytopkda.insert(1, matchDetails['players'][player]['kills'])
-                    mytopkda.insert(0, matchDetails['players'][player]['hero']['hero_name'])
                     mytopkda.insert(2, matchDetails['players'][player]['deaths'])
                     mytopkda.insert(3, matchDetails['players'][player]['assists'])
                     temp = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
                     mytopkda.insert(4, temp)
-                    temp = ''
+                    temp1 = ''
                     for num in matchDetails['players'][player]['inventory']:
-                        temp = temp + num['item_name'] + ';'
-                    mytopkda.insert(5, temp)
+                        if(num['item_name'] != 'unknown_item'):
+                            temp = num['item_name']
+                            temp = re.sub(r"item_", "", temp)
+                            temp1 = temp1 + temp + '; '
+                        if(num['item_id'] == '271'):
+                            temp1 = temp1 + 'aghanim_blessing;'
+                    mytopkda.insert(5, temp1)
                     mytopkda.insert(6, matchDetails['duration'])
                     mytopkda.insert(7, matchDetails['start_time'])
                     mytopkda.insert(8, matchDetails['match_id'])
-                    mytopkda.insert(9, matchDetails['winner'])
+                    mytopkda.insert(9, matchDetails['players'][player]['side'])
+                    mytopkda.insert(10, matchDetails['winner'])
             if (kda > topkda[4]):
                 topkda.clear()
-                topkda.insert(0, matchDetails['players'][player]['hero']['hero_name'])
+                temp = matchDetails['players'][player]['hero']['hero_name']
+                temp = re.sub(r"npc_dota_hero_", "", temp)
+                topkda.insert(0, temp)
                 topkda.insert(1, matchDetails['players'][player]['kills'])
                 topkda.insert(2, matchDetails['players'][player]['deaths'])
                 topkda.insert(3, matchDetails['players'][player]['assists'])
                 temp = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
                 topkda.insert(4, temp)
                 temp = ''
+                temp1 = ''
                 for num in matchDetails['players'][player]['inventory']:
-                    temp = temp + num['item_name'] + ';'
-                topkda.insert(5, temp)
+                    if(num['item_name'] != 'unknown_item'):
+                        temp = num['item_name']
+                        temp = re.sub(r"item_", "", temp)
+                        temp1 = temp1 + temp + '; '
+                    if(num['item_id'] == '271'):
+                        temp1 = temp1 + 'aghanim_blessing;'
+                topkda.insert(5, temp1)
                 topkda.insert(6, matchDetails['duration'])
                 topkda.insert(7, matchDetails['start_time'])
                 topkda.insert(8, matchDetails['match_id'])
-                topkda.insert(9, matchDetails['winner'])
+                topkda.insert(9, matchDetails['players'][player]['side'])
+                topkda.insert(10, matchDetails['winner'])
+        i = 0
+        tempList1[i].append(tempList)
+        i = i+1
 
-
+    print(tempList1)
 
     print(topkda)
     print(mytopkda)
