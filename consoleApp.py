@@ -7,6 +7,7 @@ import datetime
 import time
 import d2api
 import re
+from prettytable import PrettyTable
 from myData import SteamApi
 
 def dbConnect():
@@ -112,8 +113,13 @@ def weekReport(cursor, conn):
         temp = win/(len(tempMatches)/100)
     print('Количество игр: ' + str(len(tempMatches)) + '. ' + 'Win: ' + str(win) + '  Lose: ' + str(len(tempMatches) - win) + ' . WR: ' + str(temp))
     
+    mytopkda = []
     tempList = []
     tempList1 = []
+    for i in range(len(tempMatches)):
+        tempList1.append([None]*11)
+    i = 0
+
     for match in tempMatches:
         matchDetails = api.get_match_details(match[4])
         #ищем лучшее кда
@@ -134,26 +140,27 @@ def weekReport(cursor, conn):
                 temp1 = temp1 + temp + '; '
             if(num['item_id'] == 271):
                 temp1 = temp1 + 'aghanim_blessing;'
+            if(num['item_name'] == 'unknown_item'):
+                temp1 = temp1 + 'Empty_slot; '
         topkda.insert(5, temp1)
         topkda.insert(6, matchDetails['duration'])
         topkda.insert(7, matchDetails['start_time'])
         topkda.insert(8, matchDetails['match_id'])
         topkda.insert(9, matchDetails['players'][player]['side'])
         topkda.insert(10, matchDetails['winner'])
-
-        mytopkda = []
-
+        
         for player in range(10):
             kda = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
             if (matchDetails['players'][player]['steam_account']['id32'] == steamId32):
-                tempList.append(matchDetails['players'][player]['kills'])
+
                 temp = matchDetails['players'][player]['hero']['hero_name']
                 temp = re.sub(r"npc_dota_hero_", "", temp)
-                tempList.append(temp)
-                tempList.append(matchDetails['players'][player]['deaths'])
-                tempList.append(matchDetails['players'][player]['assists'])
+                tempList1[i][0] = temp
+                tempList1[i][1] = matchDetails['players'][player]['kills']
+                tempList1[i][2] = matchDetails['players'][player]['deaths']
+                tempList1[i][3] = matchDetails['players'][player]['assists']
                 temp = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
-                tempList.append(temp)
+                tempList1[i][4] = temp
                 temp1 = ''
                 for num in matchDetails['players'][player]['inventory']:
                         if(num['item_name'] != 'unknown_item'):
@@ -161,18 +168,28 @@ def weekReport(cursor, conn):
                             temp = re.sub(r"item_", "", temp)
                             temp1 = temp1 + temp + '; '
                         if(num['item_id'] == '271'):
-                            temp1 = temp1 + 'aghanim_blessing;'
-                tempList.append(temp1)
-                tempList.append(matchDetails['duration'])
-                tempList.append(matchDetails['start_time'])
-                tempList.append(matchDetails['match_id'])
-                tempList.append(matchDetails['players'][player]['side'])
-                tempList.append(matchDetails['winner'])
+                            temp1 = temp1 + 'aghanim_blessing;'      
+                        if(num['item_name'] == 'unknown_item'):
+                            temp1 = temp1 + 'Empty_slot; '
+                tempList1[i][5] = temp1
+                tempList1[i][6] = matchDetails['duration']
+                tempList1[i][7] = matchDetails['start_time']
+                tempList1[i][8] = matchDetails['match_id']
+                tempList1[i][9] = matchDetails['players'][player]['side']
+                tempList1[i][10] = matchDetails['winner']
+                
+                print(kda)
+                
+                if(mytopkda != []):
+                    print(mytopkda[4])
+                    print(mytopkda)
+                    print(kda)
                 if (mytopkda == []):
-                    mytopkda.insert(1, matchDetails['players'][player]['kills'])
+                   
                     temp = matchDetails['players'][player]['hero']['hero_name']
                     temp = re.sub(r"npc_dota_hero_", "", temp)
                     mytopkda.insert(0, temp)
+                    mytopkda.insert(1, matchDetails['players'][player]['kills'])
                     mytopkda.insert(2, matchDetails['players'][player]['deaths'])
                     mytopkda.insert(3, matchDetails['players'][player]['assists'])
                     temp = (matchDetails['players'][player]['kills'] + matchDetails['players'][player]['assists']) / matchDetails['players'][player]['deaths']
@@ -185,13 +202,18 @@ def weekReport(cursor, conn):
                             temp1 = temp1 + temp + '; '
                         if(num['item_id'] == '271'):
                             temp1 = temp1 + 'aghanim_blessing;'
+                        if(num['item_name'] == 'unknown_item'):
+                            temp1 = temp1 + 'Empty_slot; '
                     mytopkda.insert(5, temp1)
                     mytopkda.insert(6, matchDetails['duration'])
                     mytopkda.insert(7, matchDetails['start_time'])
                     mytopkda.insert(8, matchDetails['match_id'])
                     mytopkda.insert(9, matchDetails['players'][player]['side'])
                     mytopkda.insert(10, matchDetails['winner'])
-                elif(kda > mytopkda[5]):
+                    print(mytopkda)
+                    print(mytopkda[4])
+                elif(kda > mytopkda[4]):
+                    
                     mytopkda.clear()
                     temp = matchDetails['players'][player]['hero']['hero_name']
                     temp = re.sub(r"npc_dota_hero_", "", temp)
@@ -209,12 +231,17 @@ def weekReport(cursor, conn):
                             temp1 = temp1 + temp + '; '
                         if(num['item_id'] == '271'):
                             temp1 = temp1 + 'aghanim_blessing;'
+                        if(num['item_name'] == 'unknown_item'):
+                            temp1 = temp1 + 'Empty_slot; '
                     mytopkda.insert(5, temp1)
                     mytopkda.insert(6, matchDetails['duration'])
                     mytopkda.insert(7, matchDetails['start_time'])
                     mytopkda.insert(8, matchDetails['match_id'])
                     mytopkda.insert(9, matchDetails['players'][player]['side'])
                     mytopkda.insert(10, matchDetails['winner'])
+                    print(mytopkda[4])
+                    kd
+
             if (kda > topkda[4]):
                 topkda.clear()
                 temp = matchDetails['players'][player]['hero']['hero_name']
@@ -233,18 +260,91 @@ def weekReport(cursor, conn):
                         temp = re.sub(r"item_", "", temp)
                         temp1 = temp1 + temp + '; '
                     if(num['item_id'] == '271'):
-                        temp1 = temp1 + 'aghanim_blessing;'
+                        temp1 = temp1 + 'aghanim_blessing; '
+                    if(num['item_name'] == 'unknown_item'):
+                        temp1 = temp1 + 'Empty_slot;'
                 topkda.insert(5, temp1)
                 topkda.insert(6, matchDetails['duration'])
                 topkda.insert(7, matchDetails['start_time'])
                 topkda.insert(8, matchDetails['match_id'])
                 topkda.insert(9, matchDetails['players'][player]['side'])
                 topkda.insert(10, matchDetails['winner'])
-        i = 0
-        tempList1[i].append(tempList)
+                tempList.clear
         i = i+1
+            
 
-    print(tempList1)
+        
+    # print(tempList1)
+    # print(tempList1[0][0])
+
+    tableName = 'week' + str(datetime.date.today().isocalendar()[1] - 1) + 'matches' + str(steamId32)
+    sql="""
+    CREATE TABLE if not exists """ + tableName + """ (
+        id INTEGER PRIMARY KEY NOT NULL,
+        hero INTEGER,
+        kills INTEGER,
+        deaths INTEGER UNIQUE,
+        assists INTEGER,
+        kda REAL,
+        inventory TEXT,
+        duration INTEGER,
+        start_time INTEGER,
+        match_id INTEGER,
+        side TEXT,
+        winner TEXT
+    );
+    """
+    # print(sql)
+    cursor.execute(sql)
+    # print(tempList1[1][0])
+    for number in range(len(tempList1)):
+        sql = """
+        INSERT OR IGNORE INTO """ + tableName + """(hero, kills, deaths, assists, kda, inventory, duration, start_time, match_id, side, winner)
+        VALUES ('""" + str(tempList1[number][0]) + """',""" + str(tempList1[number][1]) + """,""" + str(tempList1[number][2]) + """,""" + str(tempList1[number][3]) + """,""" + str(tempList1[number][4]) + """,'""" + str(tempList1[number][5]) + """',""" + str(tempList1[number][6]) + """,""" + str(tempList1[number][7]) + """,""" + str(tempList1[number][8]) + """,'""" + str(tempList1[number][9]) + """','""" + str(tempList1[number][10]) +"""');
+        """
+        # print(sql)
+        cursor.execute(sql)
+
+
+    # вывод в убывании матчей с прошлой недели.
+    sql = """
+    SELECT * FROM """+tableName+""" ORDER BY kda DESC
+    """
+    cursor.execute(sql)
+    temp = cursor.fetchall()
+    # print(temp)
+    # print(len(temp))
+
+    report = PrettyTable()
+
+    report.field_names = ["Result", "Hero", "Kills", "Deaths", "Assists", "KDA", "Inventory", "Duration", "Date" ]
+
+
+    for number in range(len(temp)):
+        if(temp[number][10] == temp[number][11]):
+            result = 'W'
+        else:
+            result = 'L'
+        
+        duration = str(int(temp[number][7]/60)) + ':' + str(temp[number][7]%60)
+        start_time = time.strftime("%d %b %H:%M", time.localtime(temp[number][8]))
+
+        report.add_row([result, str(temp[number][1]), str(temp[number][2]), str(temp[number][3]), str(temp[number][4]), str(temp[number][5]), str(temp[number][6]), str(duration), str(start_time)])
+
+    print(report)
+        # temp1 = '[' + result + '][' + str(temp[number][1]) + '][' + str(temp[number][2]) + '-' + str(temp[number][3]) + '-' + str(temp[number][4]) + '][' + str(temp[number][5]) + '][' + temp[number][6] + '][' +  duration + '][' + start_time + ']';
+        # print(temp1)
+
+
+
+
+
+    # print(len(tempList1))
+
+
+
+
+
 
     print(topkda)
     print(mytopkda)
