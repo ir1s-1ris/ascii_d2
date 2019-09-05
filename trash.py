@@ -293,3 +293,9 @@
                                     'time': 595},
 
 4955747645
+Print(screen,
+                FigletText("Hey Python :3", "big" ),
+                screen.height // 2, x = screen.width // 3,
+                colour = Screen.COLOUR_BLACK,
+                bg = Screen.COLOUR_BLACK,
+                speed = 1)
