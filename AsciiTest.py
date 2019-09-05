@@ -46,7 +46,7 @@ class myUser():
 class HelloScene(Print): 
     def __init__(self, screen):
         activeUser = myUser()
-        text = activeUser.name
+        text = "Hello " + str(activeUser.name)
         super(HelloScene, self).__init__(
             screen,
             FigletText(text, "big"),

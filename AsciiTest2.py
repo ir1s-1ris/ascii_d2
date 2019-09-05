@@ -7,6 +7,7 @@ from asciimatics.renderers import FigletText
 
 import sys
 import getpass
+import sqlite3
 
 class ListView(Frame):
     def __init__(self, screen):
@@ -37,12 +38,38 @@ class ListView(Frame):
     def _quit():
         raise StopApplication("User pressed quit")
 
+class myUser():
+    def __init__(self):
+        self.name = getpass.getuser()
+
+class myDb(object):
+    def __init__(self):
+
+        self._db = sqlite3.connect('asciiDb.db')
+        self._db.row_factory = sqlite3.Row
+
+        self._db.cursor().execute('''
+            CREATE TABLE contacts(
+                id INTEGER PRIMARY KEY,
+                name TEXT,
+                phone TEXT,
+                adress TEXT,
+                email TEXT,
+                notes TEXT)
+            )
+        ''')
+        
+
+
+
 #возвращает эффект
 class HelloScene(Print): 
     def __init__(self, screen):
+        activeUser = myUser()
+        text = "Hello " + str(activeUser.name)
         super(HelloScene, self).__init__(
             screen,
-            FigletText("Class Rabotaet!", "big"),
+            FigletText(text, "big"),
             screen.height // 3,
             screen.width // 3,
             colour = screen.COLOUR_GREEN,
@@ -50,14 +77,8 @@ class HelloScene(Print):
             speed = 1
         )
 
-
-class myUser():
-    def __init__(self):
-        self.name = getpass.getuser()
-
-
-
 def demo(screen, scene):
+
     scenes = [
         Scene([ListView(screen)], -1, name="Main"),
         Scene([HelloScene(screen)], -1, name="HelloScene")
@@ -68,22 +89,12 @@ def demo(screen, scene):
 
 
 last_scene = None
-# while True:
-#     try:
-#         Screen.wrapper(demo, catch_interrupt=True, arguments=[last_scene])
-#         sys.exit(0)
-#     except ResizeScreenError as e:
-#         last_scene = e.scene
-
-user1 = myUser()
-
-# print(type(user1))
-print(user1.name)
-
-
-
-
-
+while True:
+    try:
+        Screen.wrapper(demo, catch_interrupt=True, arguments=[last_scene])
+        sys.exit(0)
+    except ResizeScreenError as e:
+        last_scene = e.scene
 
 
 
