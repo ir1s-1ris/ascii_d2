@@ -2,6 +2,8 @@ import d2api
 import psycopg2
 from myData import steamApi, defaultPlayerId
 
+
+# надо всё передалть на sqllite3
 def checkDbPlayer(steamId):
 	try:
 		conn = psycopg2.connect(dbname='sammy1', password='admin', user='postgres', host='localhost')
